@@ -1,4 +1,4 @@
-# Humanoid0
+# Humanoid
 
 ## Introduction
 
