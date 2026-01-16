@@ -1,0 +1,815 @@
+<!--
+
+  Modified by David Lee/Gogocom in anuary/2025
+  Cited from Rui Santos
+  Complete project details at https://RandomNerdTutorials.com/esp32-web-bluetooth/
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32 Web BLE App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div class="topnav">
+        <h1>ESP32 Web BLE Application</h1>
+    </div>
+    <div class="content">
+        <div class="card-grid">
+            <div class="card">
+                <p>
+                    <button id="connectBleButton" class="connectButton"> Connect to BLE Device</button>
+                    <button id="disconnectBleButton" class="disconnectButton"> Disconnect BLE Device</button>
+                </p>
+                <p class="gray-label">BLE state: <strong><span id="bleState" style="color:#d13a30;">Disconnected</span></strong></p>
+            </div>
+        </div>
+        <div class="card-grid">     
+            <div class="card">
+						  Shoulder <input type="range" min="-90" max="90" value="0"  class="slider" id="RJoint1" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint1Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Wrist&nbsp &nbsp &nbsp <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint2" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint2Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Hand&nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint3" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint3Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Hip&nbsp &nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint4" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint4Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Thigh&nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint5" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint5Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Knee&nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint6" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint6Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Ankle&nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint7" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint7Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Foot&nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="RJoint8" oninput="updateTextInput(this.id, this.value);">
+						  <output id="RJoint8Degree" >&nbsp &nbsp &nbsp 0</output><br>
+		        </div>
+            <div class="card">
+						  Shoulder <input type="range" min="-90" max="90" value="0"  class="slider" id="LJoint1" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint1Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Wrist&nbsp &nbsp &nbsp <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint2" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint2Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Hand&nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint3" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint3Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Hip&nbsp &nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint4" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint4Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Thigh&nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint5" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint5Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Knee&nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint6" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint6Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Ankle&nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint7" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint7Degree" >&nbsp &nbsp &nbsp 0</output><br>
+						  Foot&nbsp &nbsp &nbsp &nbsp  <input type="range" min="-90" max="90" value="0" class="slider" id="LJoint8" oninput="updateTextInput(this.id, this.value);">
+						  <output id="LJoint8Degree" class="outaction" > 0</output><br>
+        		</div>
+				</div>        
+        <div class="card-grid">     
+      			    <button id="HomeButton" class="onButton">Home</button>
+      			    <button id="ExecButton" class="offButton">Execute</button>        	
+				</div>        
+        <div class="card-grid">
+            <div class="card">
+						    <!-- The `multiple` attribute lets users select multiple files. -->
+      			    <input type="file" name="inputfile" id="inputfile" accept=".json"><br>
+      			    <button id="runButton" class="onButton">RUN</button>
+      			    <button id="listButton" class="offButton">List</button>
+      			    <button id="delButton" class="offButton">DeleteList</button>
+            </div>
+            <div id="customGroup" class="action">
+            	<p>Please select your favorite Web language:</p>
+            </div>
+        </div>
+        <div class="card-grid">
+            <div class="card">
+                <h2>Fetched Value</h2>
+                <p class="reading"><span id="valueContainer">NaN</span></p>
+                <p class="gray-label">Last reading: <span id="timestamp"></span></p>
+            </div>     
+            <div class="card">
+                <h2>Status</h2>
+                <p class="gray-label">Last value sent: <span id="valueSent"></span></p>
+            </div>                   
+        </div>
+        <div id="fixedGroup" class="card-grid">
+							<div  class="action">
+								<p>Please select a standard action:</p> 
+								<input type="radio" name="group1" value="00" checked >LStep<br>
+								<input type="radio" name="group1" value="01">FStep<br>
+								<input type="radio" name="group1" value="02">RStep<br>
+								<input type="radio" name="group1" value="03">A-hem<br>
+								<input type="radio" name="group1" value="04">Bow<br>
+								<input type="radio" name="group1" value="05">Propose<br>
+								<input type="radio" name="group1" value="06">Hug<br>
+								<input type="radio" name="group1" value="07">Clap<br>
+								<input type="radio" name="group1" value="08">High-five<br>
+								<input type="radio" name="group1" value="09" disabled >Empty<br>
+							</div>
+							<div  class="action">
+								<p>Please select a box action:</p>
+								<input type="radio" name="group1" value="10">Shake_a_Box<br>
+								<input type="radio" name="group1" value="11">Pick_Up_High<br>
+								<input type="radio" name="group1" value="12">Pick_Up_Low<br>
+								<input type="radio" name="group1" value="13">Receive_a_Box<br>
+								<input type="radio" name="group1" value="14">Present_a_Box<br>
+								<input type="radio" name="group1" value="15">Pass_a_Box<br>
+								<input type="radio" name="group1" value="16">Throw_a_Box<br>
+								<input type="radio" name="group1" value="17">Put_Down_High<br>
+								<input type="radio" name="group1" value="18">Put_Down_Low<br>
+								<input type="radio" name="group1" value="19" disabled >Empty<br>
+							</div>
+							<div  class="action">
+								<p>Please select a soccer action:</p>
+								<input type="radio" name="group1" value="20">Defense_LStep<br>
+								<input type="radio" name="group1" value="21">Dribble<br>
+								<input type="radio" name="group1" value="22">Defense_RStep<br>
+								<input type="radio" name="group1" value="23">LKick<br>
+								<input type="radio" name="group1" value="24">Long_Dribble<br>
+								<input type="radio" name="group1" value="25">RKick<br>
+								<input type="radio" name="group1" value="26">Pass_to_Left<br>
+								<input type="radio" name="group1" value="27">Pass_It_to_Me!<br>
+								<input type="radio" name="group1" value="28">Pass_to_Right<br>
+								<input type="radio" name="group1" value="29" disabled >Empty<br>
+								<p>Please select a dance action:</p>
+								<input type="radio" name="group1" value="30">Dance_LStep<br>
+								<input type="radio" name="group1" value="31">Dance_FStep<br>
+								<input type="radio" name="group1" value="32">Dance_RStep<br>
+								<input type="radio" name="group1" value="33">Dance_Finish_Pose<br>
+								<input type="radio" name="group1" value="34">Dance_Up_&_Down<br>
+								<input type="radio" name="group1" value="35">Wiggle_Dance<br>
+								<input type="radio" name="group1" value="36">Dance_BStep<br>
+								<input type="radio" name="group1" value="37">Dance_Bow<br>
+								<input type="radio" name="group1" value="38">Twist_Dance<br>
+								<input type="radio" name="group1" value="39" disabled >Empty<br>
+							</div>
+							<div  class="action">
+								<p>Please select a Roller skating action:</p>
+								<input type="radio" name="group1" value="40">Ina_Bauer_LFoot<br>
+								<input type="radio" name="group1" value="41">Brake_for_Forward<br>
+								<input type="radio" name="group1" value="42">Ina_Bauer_RFoot<br>
+								<input type="radio" name="group1" value="43">Balance_on_LFoot<br>
+								<input type="radio" name="group1" value="44">Upright<br>
+								<input type="radio" name="group1" value="45">Balance_on_RFoot<br>
+								<input type="radio" name="group1" value="46">Heel_&_Toe_LFoot<br>
+								<input type="radio" name="group1" value="47">Brake_for_Back<br>
+								<input type="radio" name="group1" value="48">Heel_&_Toe_RFoot<br>
+								<input type="radio" name="group1" value="49" disabled >Empty<br>
+							</div>
+							<div  class="action">
+								<p>Please select a extra action:</p>
+								<input type="radio" name="group1" value="70">Walk_Forward<br>
+								<input type="radio" name="group1" value="71">Walk_LTurn<br>
+								<input type="radio" name="group1" value="72">Walk_RTurn<br>
+								<input type="radio" name="group1" value="73">Walk_Back<br>
+								<input type="radio" name="group1" value="74">Carry_Forward<br>
+								<input type="radio" name="group1" value="75">Carry_LTurn<br>
+								<input type="radio" name="group1" value="76">Carry_RTurn<br>
+								<input type="radio" name="group1" value="77">Carry_Back<br>
+								<input type="radio" name="group1" value="78">Skating_Forward<br>
+								<input type="radio" name="group1" value="79">Skating_LTurn<br>
+								<input type="radio" name="group1" value="80">Skating_RTurn<br>
+								<input type="radio" name="group1" value="81">Skating_Back<br>
+								<input type="radio" name="group1" value="82" disabled >Empty<br>
+								<input type="radio" name="group1" value="83">Deep_Breathing<br>
+								<input type="radio" name="group1" value="84">Relax_(Mirror)<br>
+								<input type="radio" name="group1" value="85">Relax<br>
+								<input type="radio" name="group1" value="86">Sneeze!<br>
+								<input type="radio" name="group1" value="87">Stretch<br>
+								<input type="radio" name="group1" value="88">Get_Up_(Face_Up)<br>
+								<input type="radio" name="group1" value="89">Get_Up_(Face_Down)<br>
+							</div>
+							<div  class="action">
+								<p>Please select a extra reserved:</p>
+								<input type="radio" name="group1" value="50" disabled >Empty<br>
+								<input type="radio" name="group1" value="51" disabled >Empty<br>
+								<input type="radio" name="group1" value="52" disabled >Empty<br>
+								<input type="radio" name="group1" value="53" disabled >Empty<br>
+								<input type="radio" name="group1" value="54" disabled >Empty<br>
+								<input type="radio" name="group1" value="55" disabled >Empty<br>
+								<input type="radio" name="group1" value="56" disabled >Empty<br>
+								<input type="radio" name="group1" value="57" disabled >Empty<br>
+								<input type="radio" name="group1" value="58" disabled >Empty<br>
+								<input type="radio" name="group1" value="59" disabled >Empty<br>
+								<input type="radio" name="group1" value="60" disabled >Empty<br>
+								<input type="radio" name="group1" value="61" disabled >Empty<br>
+								<input type="radio" name="group1" value="62" disabled >Empty<br>
+								<input type="radio" name="group1" value="63" disabled >Empty<br>
+								<input type="radio" name="group1" value="64" disabled >Empty<br>
+								<input type="radio" name="group1" value="65" disabled >Empty<br>
+								<input type="radio" name="group1" value="66" disabled >Empty<br>
+								<input type="radio" name="group1" value="67" disabled >Empty<br>
+								<input type="radio" name="group1" value="68" disabled >Empty<br>
+								<input type="radio" name="group1" value="69" disabled >Empty<br>
+							</div>
+        </div>
+    </div>
+    <div class="footer">
+    </div>
+    
+</body>
+<script>
+    // DOM Elements
+    const connectButton = document.getElementById('connectBleButton');
+    const disconnectButton = document.getElementById('disconnectBleButton');
+    const retrievedValue = document.getElementById('valueContainer');
+    const latestValueSent = document.getElementById('valueSent');
+    const bleStateContainer = document.getElementById('bleState');
+    const timestampContainer = document.getElementById('timestamp');
+    const JasonFile = document.getElementById('inputfile');
+    const customActionArea = document.getElementById('customGroup');
+    const runButton = document.getElementById('runButton');
+    const listButton = document.getElementById('listButton');
+    const delButton = document.getElementById('delButton');
+    const HomeButton = document.getElementById('HomeButton');
+    const ExecButton = document.getElementById('ExecButton');
+
+
+	  const jsonDevice = '  {      ' +
+    '"right_thigh_yaw"      : [0,-1], ' +
+    '"right_shoulder_pitch" : [0, 0], ' +
+    '"right_shoulder_roll"  : [0, 1], ' +
+    '"right_elbow_roll"     : [0, 2], ' +
+    '"right_thigh_roll"     : [0, 3], ' +
+    '"right_thigh_pitch"    : [0, 4], ' +
+    '"right_knee_pitch"     : [0, 5], ' +
+    '"right_foot_pitch"     : [0, 6], ' +
+    '"right_foot_roll"      : [0, 7], ' +
+    '"left_thigh_yaw"       : [1,-1], ' +
+    '"left_shoulder_pitch"  : [1, 0], ' +
+    '"left_shoulder_roll"   : [1, 1], ' +
+    '"left_elbow_roll"      : [1, 2], ' +
+    '"left_thigh_roll"      : [1, 3], ' +
+    '"left_thigh_pitch"     : [1, 4], ' +
+    '"left_knee_pitch"      : [1, 5], ' +
+    '"left_foot_pitch"      : [1, 6], ' +
+    '"left_foot_roll"       : [1, 7]  ' +
+    '}';
+            
+
+    //Define BLE Device Specs
+    var deviceName ='HUMO';
+    var bleService = 'e1f40469-cfe1-43c1-838d-ddbc9dafdde6'; //'19b10000-e8f2-537e-4f6c-d104768a1214';
+    var ledCharacteristic = 'f90e9cfe-7e05-44a5-9d75-f13644d6f645'; //'19b10002-e8f2-537e-4f6c-d104768a1214';
+    var sensorCharacteristic= 'f90e9cfe-7e05-44a5-9d75-f13644d6f645'; //'19b10001-e8f2-537e-4f6c-d104768a1214';
+
+    //Global Variables to Handle Bluetooth
+    var bleServer;
+    var bleServiceFound;
+    var sensorCharacteristicFound;
+    
+    //
+    var CommToggle;
+
+    // Connect Button (search for BLE Devices only if BLE is available)
+    connectButton.addEventListener('click', (event) => {
+        if (isWebBluetoothEnabled()){
+            connectToDevice();
+        }
+    });
+
+    // Disconnect Button
+    disconnectButton.addEventListener('click', disconnectDevice);
+
+    // Write to the ESP32 LED Characteristic
+
+    runButton.addEventListener('click', () =>  runAction());
+    listButton.addEventListener('click', () => listAction());
+    delButton.addEventListener('click', () =>  deleteAction());
+    HomeButton.addEventListener('click', () =>  homeAction());
+    ExecButton.addEventListener('click', () =>  executeAction());
+
+    JasonFile.addEventListener('change', ReadJason ) ;
+
+
+
+		function updateTextInput(id, val) {
+		
+		  document.getElementById(id + 'Degree').value =val; //update current slider value
+		
+		}
+
+
+    // Check if BLE is available in your Browser
+    function isWebBluetoothEnabled() {
+        if (!navigator.bluetooth) {
+            console.log('Web Bluetooth API is not available in this browser!');
+            bleStateContainer.innerHTML = "Web Bluetooth API is not available in this browser/device!";
+            return false
+        }
+        console.log('Web Bluetooth API supported in this browser.');
+        return true
+    }
+
+    // Connect to BLE Device and Enable Notifications
+    function connectToDevice(){
+        console.log('Initializing Bluetooth...');
+        navigator.bluetooth.requestDevice({
+            filters: [{name: deviceName}],
+            optionalServices: [bleService]
+        })
+        .then(device => {
+            console.log('Device Selected:', device.name);
+            bleStateContainer.innerHTML = 'Connected to device ' + device.name;
+            bleStateContainer.style.color = "#24af37";
+            device.addEventListener('gattservicedisconnected', onDisconnected);
+            return device.gatt.connect();
+        })
+        .then(gattServer =>{
+            bleServer = gattServer;
+            console.log("Connected to GATT Server");
+            return bleServer.getPrimaryService(bleService);
+        })
+        .then(service => {
+            bleServiceFound = service;
+            console.log("Service discovered:", service.uuid);
+            return service.getCharacteristic(sensorCharacteristic);
+        })
+        .then(characteristic => {
+            console.log("Characteristic discovered:", characteristic.uuid);
+            sensorCharacteristicFound = characteristic;
+            characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            characteristic.startNotifications();
+            console.log("Notifications Started.");
+            return ; 
+        })
+        .then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+           
+        })
+        .catch(error => {
+            console.log('Error: ', error);
+        })
+    }
+
+    function onDisconnected(event){
+        console.log('Device Disconnected:', event.target.device.name);
+        bleStateContainer.innerHTML = "Device disconnected";
+        bleStateContainer.style.color = "#d13a30";
+
+        connectToDevice();
+    }
+
+    function handleCharacteristicChange(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed: ", newValueReceived);
+        var msgHead = newValueReceived.substring(0,5);
+        if( msgHead == "LINE:" )  {
+	        customActionArea.innerHTML += newValueReceived.substring(5, newValueReceived.length ) ;
+  	    } else  { // Message
+    	    retrievedValue.innerHTML = newValueReceived.substring(5, newValueReceived.length ) ;
+    	    if( newValueReceived.substring(5, newValueReceived.length ) == "RECV" ) CommToggle = false;
+      	}  
+
+        timestampContainer.innerHTML = getDateTime();
+    }
+
+    function writeOnCharacteristic(value){
+        if (bleServer && bleServer.connected) {
+            bleServiceFound.getCharacteristic(ledCharacteristic)
+            .then(characteristic => {
+            
+                const data = new TextEncoder("utf-8").encode(value);
+								
+                characteristic.writeValue(data);
+                return true;
+            })
+            .then(() => {
+                //latestValueSent.innerHTML = value;
+                //console.log("Value written to LEDcharacteristic:", value);
+            })
+            .catch(error => {
+                console.error("Error writing to the LED characteristic: ", error);
+            });
+        } else {
+            console.error ("Bluetooth is not connected. Cannot write to characteristic.")
+            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
+            return false;
+        }
+        return true;
+    }
+
+    function disconnectDevice() {
+        console.log("Disconnect Device.");
+        if (bleServer && bleServer.connected) {
+            if (sensorCharacteristicFound) {
+                sensorCharacteristicFound.stopNotifications()
+                    .then(() => {
+                        console.log("Notifications Stopped");
+                        return bleServer.disconnect();
+                    })
+                    .then(() => {
+                        console.log("Device Disconnected");
+                        bleStateContainer.innerHTML = "Device Disconnected";
+                        bleStateContainer.style.color = "#d13a30";
+
+                    })
+                    .catch(error => {
+                        console.log("An error occurred:", error);
+                    });
+            } else {
+                console.log("No characteristic found to disconnect.");
+            }
+        } else {
+            // Throw an error if Bluetooth is not connected
+            console.error("Bluetooth is not connected.");
+            window.alert("Bluetooth is not connected.")
+        }
+    }
+
+    function getDateTime() {
+        var currentdate = new Date();
+        var day = ("00" + currentdate.getDate()).slice(-2); // Convert day to string and slice
+        var month = ("00" + (currentdate.getMonth() + 1)).slice(-2);
+        var year = currentdate.getFullYear();
+        var hours = ("00" + currentdate.getHours()).slice(-2);
+        var minutes = ("00" + currentdate.getMinutes()).slice(-2);
+        var seconds = ("00" + currentdate.getSeconds()).slice(-2);
+
+        var datetime = day + "/" + month + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
+        return datetime;
+    }
+
+    function homeAction(event) {
+        
+        var outputId;
+        
+        for( let i =1; i<9; i++ ) {
+				  document.getElementById("RJoint"+i).value = 0; //update current slider value
+				  document.getElementById("RJoint"+i+'Degree').value = 0; //update current slider value
+				  document.getElementById("LJoint"+i).value = 0; //update current slider value
+				  document.getElementById("LJoint"+i+'Degree').value = 0; //update current slider value
+				}
+  			if(!writeOnCharacteristic("BEGIN-HRM")) return;
+    }
+
+    function executeAction(event) {
+
+				var strOut = '';
+			
+			  strOut += '{ \n';
+			  strOut += '"count": 1,\n';
+			  
+			  strOut += '"lp_first": 0,\n';
+			  strOut += '"lp_last":  0,\n';
+			  strOut += '"lp_count": 0,\n';
+			  
+			  strOut += '"index" : [ 1 ],\n';
+			  strOut += '"muscle" : [\n';			  
+			  // Print the values
+        strOut +=   '[[';
+	        for(let k=1; k<8; k++) {
+	          strOut +=  document.getElementById("RJoint"+k).value + ',' ;
+	        }
+	        strOut +=   document.getElementById("RJoint8").value ; 
+	        strOut +=   ' ],[';
+	        for(let k=1; k<8; k++) {
+	          strOut +=  document.getElementById("LJoint"+k).value + ',';
+	        }
+	        strOut +=   document.getElementById("LJoint8").value ; 
+	      	strOut += ' ]]\n';
+        strOut +=  '],\n';
+ 
+			  strOut +=  '"tdelay" : [ 500 ],\n';
+		    strOut +=  '"slot"   : 99,\n';
+		    strOut +=  '"name"   : "single" \n';
+		    strOut += '}\n';
+
+        console.log(strOut);
+        
+        var strResult = strOut.replaceAll('\n',' ');
+
+       try {
+        	 const docMotion = JSON.parse(strResult);
+       
+			    var count  = docMotion["count"];
+			    var Name   = docMotion["name"];
+			    var Number = docMotion["slot"];
+			                
+			    var mindex = new Array();
+					var tdelay = new Array();
+	    
+			    for(let i=0; i<  count; i++ ) {
+			
+			      mindex[i] = docMotion["index"][i];
+			      for(let j=0; j<8  ; j++) {
+			          var Value1 = docMotion["muscle"][i][0][j];
+			          var Value2 = docMotion["muscle"][i][1][j];  				
+			      }
+			      tdelay[i] = docMotion["tdelay"][i];
+			    }
+
+	      } catch(error ) {
+              console.log("Error parsing Jason array " + error);
+              retrievedValue.innerHTML = error;
+              return 0;
+       };
+       
+	     transferByBLE("BEGIN-TST", "BEGIN-TED", strOut);
+	     
+	     return 1;
+
+    }
+
+    
+    function deleteAction(event) {
+        customActionArea.innerHTML = '<p>Please select your favorite Web language:</p>' ;
+        writeOnCharacteristic("BEGIN-FMT");
+        latestValueSent.innerHTML = "Delete list ";
+        console.log("delete list ");	
+    }
+    
+    function listAction(event) {
+        customActionArea.innerHTML = '<p>Please select your favorite Web language:</p>' ;
+        writeOnCharacteristic("BEGIN-LST");
+        latestValueSent.innerHTML = "Request list ";
+        console.log("request list ");	
+    }
+    
+    function runAction(event) {
+        var newValue = document.querySelector('input[name="group1"]:checked').value;
+    	  if (bleServer && bleServer.connected) {        
+		        if( Number(newValue) >= 0 ) {
+			        writeOnCharacteristic("BEGIN-NUM" + newValue);
+						   latestValueSent.innerHTML = "Begin num" ;
+		        }
+		        else { // custom - file
+		  	      writeOnCharacteristic("BEGIN-RUN" + newValue);
+		 				   latestValueSent.innerHTML = "Begin run" ;
+		        }		
+		        console.log("action value changed: ", newValue);	
+     		} else {
+            console.error ("Bluetooth is not connected. Cannot write to characteristic.")
+            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
+            return 0;
+        }      
+        return 1;  
+    }
+    
+    function ReadJason(event) {
+    	  if (bleServer && bleServer.connected) {
+          let fr = new FileReader();
+          fr.onload = function () {
+           		SplitData(fr.result);
+          }
+          try {
+         	
+          	fr.readAsText(this.files[0]);
+  	      } catch(error ) {
+              console.log("Error parsing reading file " + error);
+              retrievedValue.innerHTML = error;
+              return 0;
+       		};        
+     		} else {
+            console.error ("Bluetooth is not connected. Cannot write to characteristic.")
+            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
+            return 0;
+        }        
+        return 1;
+    }
+    
+		function SplitData(strValue) {
+
+				var Frame = {
+				  count  : 0 ,
+				  lp_first  : 0,
+				  lp_last   : 0,
+				  lp_count  : 0,				  
+				  index  : [],
+				  musle  : [],
+					tdelay : [],
+				  Number : 0,
+				  Name   : '',
+				}  ;
+
+        const docDevice = JSON.parse(jsonDevice);
+        
+        try {
+        	 const docMotion = JSON.parse(strValue);
+       
+			    Frame.count  = docMotion["@frame_length"];
+			    Frame.Name   = docMotion["name"];
+			    Frame.Number = docMotion["slot"];
+				                
+				  var lp_array = docMotion["codes"] ; 
+	           
+	        if ( lp_array.length > 0 ) {
+	           Frame.lp_first  = docMotion["codes"][0]["arguments"][0];
+	           Frame.lp_last   = docMotion["codes"][0]["arguments"][1];
+	           Frame.lp_count  = docMotion["codes"][0]["arguments"][2];
+	        }               
+	  			                
+			    for(let i=0; i<  Frame.count; i++ ) {
+			
+			      Frame.musle[i]    = new Array() ;
+			      Frame.musle[i][0] = new Array() ;
+			      Frame.musle[i][1] = new Array() ;
+			      Frame.index[i] = docMotion["frames"][i]["@index"];
+			      for(let j=0; j<18  ; j++) {
+			          const deviceName  = docMotion["frames"][i]["outputs"][j]["device"];
+			          const deviceValue = docMotion["frames"][i]["outputs"][j]["value"];  
+			          const devicePart  = docDevice[deviceName][0];
+			          const deviceIndex = docDevice[deviceName][1];
+			
+								
+			          if( deviceIndex != -1 ) 
+			            Frame.musle[i][devicePart][deviceIndex] = deviceValue;
+			
+			      }
+			
+			      Frame.tdelay[i] = docMotion["frames"][i]["transition_time_ms"];
+			
+			    }
+
+	      } catch(error ) {
+              console.log("Error parsing Jason file " + error);
+              retrievedValue.innerHTML = error;
+              return;
+       };
+				latestValueSent.innerHTML = "Parsing OK" ;
+				   			    
+				var strOut = ' Frame = {\n';
+			
+			  strOut += '{ \n';
+			  strOut += ' ';
+			  strOut += Frame.count + ',\n';
+			  
+				strOut += Frame.lp_first + ',\n';
+			  strOut += Frame.lp_last + ',\n';
+			  strOut += Frame.lp_count + ',\n';	  
+			  
+			  strOut += ' {\n';
+			  
+			  // Print the values
+		    for(let i=0; i<  Frame.count; i++ ) {
+		      strOut += '   {\n';      
+		      strOut +=  '     ';
+		      strOut +=  Frame.index[i] + ',\n';
+		
+		        strOut +=   '     {\n';
+		        strOut +=   '       {';
+		        for(let k=0; k<7; k++) {
+		          strOut +=  Frame.musle[i][0][k] + ',' ;
+		        }
+		        strOut +=   Frame.musle[i][0][7] ; 
+		        strOut +=   ' },\n';
+		        strOut +=   '       {';
+		        for(let k=0; k<7; k++) {
+		          strOut +=  Frame.musle[i][1][k] + ',';
+		        }
+		        strOut +=   Frame.musle[i][1][7] ; 
+		        strOut += ' }\n';
+		        strOut += '     }, \n';
+		
+		      strOut +=  '     ';
+		      strOut += Frame.tdelay[i] +'\n';
+		      strOut += '   },\n';
+		
+		    }
+		
+		    strOut +=  ' },\n';
+		    strOut +=  ' ';
+		    strOut +=  Frame.Number + ',\n';
+		    strOut += ' "' + Frame.Name + '"';
+		    strOut += ',\n';
+		    strOut += '},\n';
+
+
+				var strOut = '';
+			
+			  strOut += '{ \n';
+			  strOut += '"count":';
+			  strOut += Frame.count + ',\n';
+			  
+			  strOut += '"lp_first":';
+			  strOut += Frame.lp_first + ',\n';
+			  strOut += '"lp_last":';
+			  strOut += Frame.lp_last + ',\n';
+			  strOut += '"lp_count":';
+			  strOut += Frame.lp_count + ',\n';
+			  
+			  
+			  strOut += '"index" : [ ';
+		    for(let i=0; i<  Frame.count - 1; i++ ) {
+		      strOut +=  Frame.index[i] + ',';
+		    }
+	      strOut +=  Frame.index[Frame.count - 1] ;
+        strOut +=  '],\n';
+        
+			  strOut += '"muscle" : [\n';			  
+			  // Print the values
+		    for(let i=0; i<  Frame.count; i++ ) {
+		        strOut +=   '[[';
+		        for(let k=0; k<7; k++) {
+		          strOut +=  Frame.musle[i][0][k] + ',' ;
+		        }
+		        strOut +=   Frame.musle[i][0][7] ; 
+		        strOut +=   ' ],[';
+		        for(let k=0; k<7; k++) {
+		          strOut +=  Frame.musle[i][1][k] + ',';
+		        }
+		        strOut +=   Frame.musle[i][1][7] ; 
+		        if( i != Frame.count - 1 )
+		        	strOut += ' ]],\n';
+		        else 
+		        	strOut += ' ]]\n';
+			  }
+			  
+        strOut +=  '],\n';
+ 
+			  strOut += '"tdelay" : [';
+		    for(let i=0; i<  Frame.count-1; i++ ) {
+		      strOut += Frame.tdelay[i] +',';		      
+		    }
+	      strOut += Frame.tdelay[Frame.count - 1];		      
+		    strOut += '],\n';
+		    
+		    strOut +=  '"slot" : ';
+		    strOut +=  Frame.Number + ',\n';
+		    strOut +=  '"name" : ';
+		    strOut += ' "' + Frame.Name + '"\n';
+		    strOut += '}\n';
+
+          console.log(strOut);
+          
+          var strResult = strOut.replaceAll('\n',' ');
+
+    try {
+        	 const docMotion = JSON.parse(strResult);
+       
+			    var count  = docMotion["count"];
+			    var Name   = docMotion["name"];
+			    var Number = docMotion["slot"];
+			                
+			    var mindex = new Array();
+					var tdelay = new Array();
+	    
+			    for(let i=0; i<  count; i++ ) {
+			
+			      mindex[i] = docMotion["index"][i];
+			      for(let j=0; j<8  ; j++) {
+			          var Value1 = docMotion["muscle"][i][0][j];
+			          var Value2 = docMotion["muscle"][i][1][j];  				
+			      }
+			      tdelay[i] = docMotion["tdelay"][i];
+			    }
+
+	      } catch(error ) {
+              console.log("Error parsing Jason array " + error);
+              retrievedValue.innerHTML = error;
+              return 0;
+       };
+
+	     transferByBLE("BEGIN-UPL"+Frame.Name, "BEGIN-UED", strOut);
+ 
+			return 1;
+		}
+		
+		async function transferByBLE(startCommand, endCommand, strValue) {
+			
+			  let blocks = (strValue.length / 512) >> 0;
+		    let remainder = strValue.length % 512;
+		    let tString = "";
+		    
+		     if(!writeOnCharacteristic(startCommand) ) return;
+		     
+				 await delay(500);
+			   
+				for( let i=0; i<blocks; i++)
+				{
+				   let strSplit= strValue.substring( i * 512, i * 512 + 512 );			   
+				   tString += strSplit;;
+				   console.log("index = " + i);		
+				   latestValueSent.innerHTML = "index = " + i;
+				   if(!writeOnCharacteristic(strSplit)) return;
+				   await delay(1000);
+				}						
+
+ 				if ( remainder != 0 ) {
+				  let strSplit = strValue.substring( blocks * 512 , blocks * 512 + remainder );
+				   tString += strSplit;
+					 console.log("index = " + blocks + " Size ", strSplit.length );	
+				   latestValueSent.innerHTML = "index = " + blocks;
+				   if(!writeOnCharacteristic(strSplit)) return;
+		       await delay(1000);
+				}
+	
+				if(!writeOnCharacteristic(endCommand)) return;
+
+				latestValueSent.innerHTML = "Transfer End ";
+		}
+		
+		function delay(ms) {
+       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+
+
+</script>
+
+</html>
