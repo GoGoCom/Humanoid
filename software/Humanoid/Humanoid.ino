@@ -9,9 +9,9 @@
 #define BLYNK_PRINT Serial
 
 /* Fill in information from Blynk Device Info here */
-#define BLYNK_TEMPLATE_ID "TMPL6fQP4aXvb"
+#define BLYNK_TEMPLATE_ID "TMPL6hhhhhh" // your own
 #define BLYNK_TEMPLATE_NAME "Humanoid"
-#define BLYNK_AUTH_TOKEN "fLaAB_KTDRqopOsoreXXiCNCvQT3Ff3H"
+#define BLYNK_AUTH_TOKEN "fLaAtyhlrthklrtkhlrtkhrtl;khrl;" // your own
 
 //deserialize a JSON document with ArduinoJson.
 #include <ArduinoJson.h>
