@@ -58,4 +58,4 @@ After defining the device and setting up the development template through the Bl
 
 ## Acknowledgments
 
-I would like to thank to every one, specially Rui Santos of RandomNerdTutorials for their contributions. 
+I would like to thank to every one, specially PLEN project team and Rui Santos of RandomNerdTutorials for their contributions. 
